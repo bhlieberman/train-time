@@ -10,9 +10,15 @@
 (def time-objs
   (for [times (vals (get-in time-table [:weekday :southbound]))]
     (->> times
-         (filter (complement nil?))
+         (filter some?)
          (map parse-times)
          (sort-by <))))
+
+(def time-durations
+  (for [station time-objs
+        :let [begin (first station)
+              end (last station)]]
+    (t.i/new-interval begin end)))
 
 (comment
   time-objs)
