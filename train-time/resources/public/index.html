@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Train Time</title>
+    <meta charset="utf-8" />
+    <style>
+      header {
+        font-family: sans-serif;
+        font-size: large;
+        margin: 10px;
+      }
+      div {
+        display: flex;
+        flex-direction: column;
+        margin: 10px;
+      }
+      #summary {
+        width: 400px;
+      }
+      input {
+        box-shadow: 10px 5px 5px grey;
+      }
+      input::placeholder:hover {
+        text-emphasis: bold blue;
+      }
+      footer {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>Train Time</header>
+    <main>
+      <div id="summary">
+        <article>
+            Welcome to Train Time, a little web app written in Clojure(Script).
+            This helps you schedule a trip on New Mexico's Rail Runner commuter train,
+            and helps me improve my Clojure skills, so thanks for checking it out.
+        </article>
+      </div>
+      <div id="trip-info">
+        <p>Enter your trip info here:</p>
+        <form>
+          <input type="text" placeholder="Departure date" />
+          <input type="text" placeholder="Departure time" />
+          <input type="text" placeholder="Direction of travel" />
+          <input type="submit" />
+        </form>
+      </div>
+    </main>
+    <footer>Created by Ben Lieberman</footer>
+  </body>
+</html>
