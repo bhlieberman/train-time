@@ -5,14 +5,30 @@
 
 (def time-table (read-string (slurp "times.edn")))
 
+(def weekdays (let [days ["MONDAY" "TUESDAY" "WEDNESDAY" "THURSDAY" "FRIDAY"]]
+                (map t/day-of-week days)))
+
+(def weekend (let [days ["SATURDAY" "SUNDAY"]]
+               (map t/day-of-week days)))
+
 (defn parse-times [val] (if-not (nil? val) (t/time val) nil))
 
-(def time-objs
-  (for [times (vals (get-in time-table [:weekday :southbound]))]
+(defn time-seqs [day travel-dir]
+  (let [day (keyword day)
+        dir (keyword travel-dir)]
+    (vals (get-in time-table [day dir]))))
+
+(defn time-objs [day travel-dir]
+  (for [times (time-seqs day travel-dir)]
     (->> times
          (filter some?)
          (map parse-times)
          (sort-by <))))
+
+(defn times-to-go [day travel-dir]
+  (-> (cond (some #{(t/day-of-week day)} weekdays) "weekday"
+            (some #{(t/day-of-week day)} weekend) "weekend")
+      (time-objs travel-dir)))
 
 (def time-durations
   (for [station time-objs
@@ -21,4 +37,9 @@
     (t.i/new-interval begin end)))
 
 (comment
-  time-objs)
+  (times-to-go "monday" "southbound")
+  (keyword "southbound")
+  weekdays
+  weekend
+  time-objs
+  )
