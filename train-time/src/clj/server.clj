@@ -1,16 +1,22 @@
 (ns server
+  #_{:clj-kondo/ignore [:unused-namespace]}
   (:require [ring.adapter.jetty :as jetty]
             [reitit.ring :as ring]
+            [compojure.core :as comp]
+            [compojure.route :as route]
             [ring.util.response :as r]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.java.javadoc :refer [javadoc]]
+            [clojure.repl :refer [doc]]))
 
 (defn index []
   (slurp (io/resource "public/index.html")))
 
-(def app
-  (ring/ring-handler
-   (ring/router
-    ["/" {:handler (fn [_req] {:body (index) :status 200})}])))
+(comp/defroutes routes
+  (comp/GET "/" [] {:status 200
+                    :body (index)}))
+
+(def app (fn [req] (routes req)))
 
 (defonce server (atom nil))
 
@@ -27,7 +33,7 @@
     (.stop (:jetty s))
     (reset! server nil)))
 
-(comment
-  (index)
+(comment 
   (start-server)
-  (stop-server))
+  (stop-server)
+  )

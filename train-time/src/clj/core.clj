@@ -26,9 +26,9 @@
          (sort-by <))))
 
 (defn times-to-go [day travel-dir]
-  (-> (cond (some #{(t/day-of-week day)} weekdays) "weekday"
-            (some #{(t/day-of-week day)} weekend) "weekend")
-      (time-objs travel-dir)))
+  (let [day (cond (some #{(t/day-of-week day)} weekdays) "weekday"
+              (some #{(t/day-of-week day)} weekend) "weekend")]
+      (time-objs day travel-dir)))
 
 (def time-durations
   (for [station time-objs
@@ -36,9 +36,19 @@
               end (last station)]]
     (t.i/new-interval begin end)))
 
+(def times (vals (get-in time-table [:weekday :southbound])))
+
 (comment
   (times-to-go "monday" "southbound")
-  (keyword "southbound")
+  ;;;;;;;;;;
+  (->> (-> "times.edn"
+           slurp
+           read-string
+           (get-in [:weekday :southbound])
+           vals
+           flatten)
+       (partition 15)) 
+  ;;;;;;;;;;
   weekdays
   weekend
   time-objs
