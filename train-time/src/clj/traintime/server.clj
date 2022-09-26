@@ -1,4 +1,4 @@
-(ns server
+(ns traintime.server
   #_{:clj-kondo/ignore [:unused-namespace]}
   (:require [ring.adapter.jetty :as jetty]
             [reitit.ring :as ring]

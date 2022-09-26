@@ -1,4 +1,4 @@
-(ns core
+(ns traintime.core
   (:require [clojure.edn :refer [read-string]]
             [tick.core :as t]
             [tick.alpha.interval :as t.i]))
@@ -11,7 +11,7 @@
 (def weekend (let [days ["SATURDAY" "SUNDAY"]]
                (map t/day-of-week days)))
 
-(defn parse-times [val] (if-not (nil? val) (t/time val) nil))
+(defn parse-times [val] (if (some? val) (t/time val) nil))
 
 (defn time-seqs [day travel-dir]
   (let [day (keyword day)
@@ -27,8 +27,8 @@
 
 (defn times-to-go [day travel-dir]
   (let [day (cond (some #{(t/day-of-week day)} weekdays) "weekday"
-              (some #{(t/day-of-week day)} weekend) "weekend")]
-      (time-objs day travel-dir)))
+                  (some #{(t/day-of-week day)} weekend) "weekend")]
+    (time-objs day travel-dir)))
 
 (def time-durations
   (for [station time-objs
@@ -39,6 +39,12 @@
 (def times (vals (get-in time-table [:weekday :southbound])))
 
 (comment
+  (mapcat (comp
+           #(sort-by < %)
+           parse-times
+           #(filter some? %))
+          times)
+  ;;;;;;;;;;
   (times-to-go "monday" "southbound")
   ;;;;;;;;;;
   (->> (-> "times.edn"
@@ -47,9 +53,8 @@
            (get-in [:weekday :southbound])
            vals
            flatten)
-       (partition 15)) 
-  ;;;;;;;;;;
+       (partition 15))
+  ;;;;;;;;;; 
   weekdays
   weekend
-  time-objs
   )
