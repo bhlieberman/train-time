@@ -6,17 +6,20 @@
             [compojure.route :as route]
             [ring.util.response :as r]
             [clojure.java.io :as io]
-            [clojure.java.javadoc :refer [javadoc]]
-            [clojure.repl :refer [doc]]))
+            [traintime.core :refer [time-table]]))
 
 (defn index []
   (slurp (io/resource "public/index.html")))
 
-(comp/defroutes routes
-  (comp/GET "/" [] {:status 200
-                    :body (index)}))
-
-(def app (fn [req] (routes req)))
+(def app
+  (ring/ring-handler
+   (ring/router
+    ["/" 
+     ["api/" time-table]
+     ["assets/*" (ring/create-resource-handler {:root "public/assets"})]
+     ["" {:handler (fn [_req] {:body (index) :status 200})}]]
+    #_{:data {:muuntaja m/instance
+            :middleware [muuntaja/format-middleware]}})))
 
 (defonce server (atom nil))
 
@@ -24,7 +27,7 @@
   (swap! server
          assoc
          :jetty
-         (jetty/run-jetty (fn [req] (app req))
+         (jetty/run-jetty #'app
                           {:port 3001
                            :join? false})))
 
@@ -33,7 +36,7 @@
     (.stop (:jetty s))
     (reset! server nil)))
 
-(comment 
-  (start-server)
+(comment
   (stop-server)
+  (start-server)
   )

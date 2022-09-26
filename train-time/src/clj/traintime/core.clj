@@ -39,6 +39,7 @@
 (def times (vals (get-in time-table [:weekday :southbound])))
 
 (comment
+  time-table
   (mapcat (comp
            #(sort-by < %)
            parse-times
