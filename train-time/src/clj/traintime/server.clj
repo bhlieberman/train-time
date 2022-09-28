@@ -2,11 +2,11 @@
   #_{:clj-kondo/ignore [:unused-namespace]}
   (:require [ring.adapter.jetty :as jetty]
             [reitit.ring :as ring]
-            [compojure.core :as comp]
-            [compojure.route :as route]
             [ring.util.response :as r]
             [clojure.java.io :as io]
-            [traintime.core :refer [time-table]]))
+            [muuntaja.core :as m]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [traintime.core :refer [times]]))
 
 (defn index []
   (slurp (io/resource "public/index.html")))
@@ -14,11 +14,12 @@
 (def app
   (ring/ring-handler
    (ring/router
-    ["/" 
-     ["api/" time-table]
+    ["/"
+     ["api/"
+      ["data" {:handler (fn [_req] {:body times :status 200})}]]
      ["assets/*" (ring/create-resource-handler {:root "public/assets"})]
      ["" {:handler (fn [_req] {:body (index) :status 200})}]]
-    #_{:data {:muuntaja m/instance
+    {:data {:muuntaja m/instance
             :middleware [muuntaja/format-middleware]}})))
 
 (defonce server (atom nil))

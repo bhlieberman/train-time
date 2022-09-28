@@ -1,7 +1,8 @@
 (ns traintime.core
   (:require [clojure.edn :refer [read-string]]
             [tick.core :as t]
-            [tick.alpha.interval :as t.i]))
+            [tick.alpha.interval :as t.i]
+            [clojure.data.json :as json]))
 
 (def time-table (read-string (slurp "times.edn")))
 
@@ -36,26 +37,9 @@
               end (last station)]]
     (t.i/new-interval begin end)))
 
-(def times (vals (get-in time-table [:weekday :southbound])))
+(def times (json/write-str (vals (get-in time-table [:weekday :southbound]))))
 
 (comment
-  time-table
-  (mapcat (comp
-           #(sort-by < %)
-           parse-times
-           #(filter some? %))
-          times)
-  ;;;;;;;;;;
-  (times-to-go "monday" "southbound")
-  ;;;;;;;;;;
-  (->> (-> "times.edn"
-           slurp
-           read-string
-           (get-in [:weekday :southbound])
-           vals
-           flatten)
-       (partition 15))
-  ;;;;;;;;;; 
-  weekdays
-  weekend
+  times
+  time-table 
   )
