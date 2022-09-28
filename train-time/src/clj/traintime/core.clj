@@ -37,9 +37,8 @@
               end (last station)]]
     (t.i/new-interval begin end)))
 
-(def times (json/write-str (vals (get-in time-table [:weekday :southbound]))))
+(def times (-> time-table
+                   (get-in [:weekday :southbound])
+                   vals
+                   json/write-str))
 
-(comment
-  times
-  time-table 
-  )
