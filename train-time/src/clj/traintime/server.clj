@@ -11,12 +11,15 @@
 (defn index []
   (slurp (io/resource "public/index.html")))
 
+(defn post-handler [_req]
+  {:body times :status 200})
+
 (def app
   (ring/ring-handler
    (ring/router
     ["/"
      ["api/"
-      ["data" {:handler (fn [_req] {:body times :status 200})}]]
+      ["data" {:post post-handler}]]
      ["assets/*" (ring/create-resource-handler {:root "public/assets"})]
      ["" {:handler (fn [_req] {:body (index) :status 200})}]]
     {:data {:muuntaja m/instance

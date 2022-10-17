@@ -32,13 +32,31 @@
     (time-objs day travel-dir)))
 
 (def time-durations
-  (for [station time-objs
+  (for [station (time-objs "weekday" "southbound")
         :let [begin (first station)
               end (last station)]]
     (t.i/new-interval begin end)))
 
 (def times (-> time-table
-                   (get-in [:weekday :southbound])
-                   vals
-                   json/write-str))
+               (get-in [:weekday :southbound])
+               vec
+               json/write-str))
 
+(defn departure-time [time-str]
+  (every?
+   #(t.i/contains? % (t/time time-str)) time-durations))
+
+(comment
+  (t.i/contains? (first time-durations) (t/time "13:00"))
+  (departure-time "13:00")
+  (:tick/beginning (first time-durations))
+  #(t/< (t/time %) (t/time "13:00"))
+  ;;;;;;;;;;;;;;;;;; 
+  (->> (get-in
+        time-table [:weekday :southbound :kewa])
+       (filter some?)
+       (map (fn [t] (when (t/< (t/time t) (t/time "13:00")) t))))
+  (let [[header & times] (-> (get-in time-table [:weekday :southbound])
+            vec
+            first)]
+    times))
