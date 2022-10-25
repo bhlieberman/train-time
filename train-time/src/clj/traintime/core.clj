@@ -1,8 +1,11 @@
 (ns traintime.core
   (:require [clojure.edn :refer [read-string]]
+            [clojure.data.json :as json]
+            [clojure.test :refer [deftest is testing run-tests with-test]]
+            [clojure.repl :refer [doc]]
+            [clojure.data.priority-map :refer [priority-map]]
             [tick.core :as t]
-            [tick.alpha.interval :as t.i]
-            [clojure.data.json :as json]))
+            [tick.alpha.interval :as t.i]))
 
 (def time-table (read-string (slurp "times.edn")))
 
@@ -37,26 +40,31 @@
               end (last station)]]
     (t.i/new-interval begin end)))
 
-(def times (-> time-table
-               (get-in [:weekday :southbound])
-               vec
-               json/write-str))
+(def times (->> (get-in time-table [:weekday :southbound]) 
+                (into (priority-map))
+                json/write-str))
 
 (defn departure-time [time-str]
   (every?
    #(t.i/contains? % (t/time time-str)) time-durations))
 
+
 (comment
-  (t.i/contains? (first time-durations) (t/time "13:00"))
-  (departure-time "13:00")
-  (:tick/beginning (first time-durations))
-  #(t/< (t/time %) (t/time "13:00"))
-  ;;;;;;;;;;;;;;;;;; 
-  (->> (get-in
-        time-table [:weekday :southbound :kewa])
-       (filter some?)
-       (map (fn [t] (when (t/< (t/time t) (t/time "13:00")) t))))
-  (let [[header & times] (-> (get-in time-table [:weekday :southbound])
-            vec
-            first)]
-    times))
+  (time-objs "weekday" "southbound")
+  (into (priority-map) (get-in time-table [:weekday :southbound]))
+  times
+  )
+;; (comment
+  ;; (t.i/contains? (first time-durations) (t/time "13:00"))
+  ;; (departure-time "13:00")
+  ;; (:tick/beginning (first time-durations))
+  ;; #(t/< (t/time %) (t/time "13:00"))
+  ;; ;;;;;;;;;;;;;;;;;; 
+  ;; (->> (get-in
+  ;;       time-table [:weekday :southbound :kewa])
+  ;;      (filter some?)
+  ;;      (map (fn [t] (when (t/< (t/time t) (t/time "13:00")) t))))
+  ;; (let [[header & times] (-> (get-in time-table [:weekday :southbound])
+  ;;           vec
+  ;;           first)]
+  ;;   times))
